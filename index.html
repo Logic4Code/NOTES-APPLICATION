@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notes App - Basic Tailwind & JS</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-gray-100 text-gray-800 p-6 flex justify-center">
+
+    <div class="w-full max-w-lg bg-white p-6">
+        <h3 class=" text-center text-blue-600">My Notes App</h3>
+        
+        <div >
+            <div>
+                <label class="block text-black">Note Title</label>
+                <input type="text" id="noteTitle" placeholder="Enter title..." 
+                       class="w-full mt-1 p-2 border border-gray-300">
+            </div>
+            <div>
+                <label class="block text-black">Note Content</label>
+                <textarea id="noteContent" rows="3" placeholder="Enter content..." 
+                          class="w-full mt-1 p-2 border border-gray-300"></textarea>
+            </div>
+            <button id="saveBtn" class="w-full bg-blue-500 text-white py-2 px-4">
+                Save Note
+            </button>
+        </div>
+
+        <hr class="border-gray-200 mb-6">
+
+        <h3 >Saved Notes</h3>
+        
+        <div id="notesList">
+            </div>
+
+        <div id="pagenum" class="flex items-center justify-between">
+            <span id="num" class=" text-gray-600">Page 1 of 1</span>
+            <div class="flex gap-2">
+                <button id="prevBtn" class="px-3 py-1.5 text-sm text-gray-700 bg-white border border-gray-300">
+                    Previous
+                </button>
+                <button id="nextBtn" class="px-3 py-1.5  text-gray-700 ">
+                    Next
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var notesArray = JSON.parse(localStorage.getItem("myNotes")) || [];
+        var currentPage = 1;
+        const notesPerPage = 5;
+
+        var noteTitle = document.getElementById("noteTitle");
+        var noteContent = document.getElementById("noteContent");
+        var saveButton = document.getElementById("saveBtn");
+        var notesList = document.getElementById("notesList");
+        
+        var pagenum = document.getElementById("pagenum");
+        var num = document.getElementById("num");
+        var prevBtn = document.getElementById("prevBtn");
+        var nextBtn = document.getElementById("nextBtn");
+
+        saveButton.onclick = function() {
+            var titleText = noteTitle.value;
+            var contentText = noteContent.value;
+
+            if (contentText=== "") {
+                alert("enter content");
+                return;
+            }
+
+            var currentDateTime = new Date().toLocaleString();
+
+            var newNote = {
+                title: titleText,
+                content: contentText,
+                dateTime: currentDateTime
+            };
+
+            notesArray.unshift(newNote); 
+            localStorage.setItem("myNotes", JSON.stringify(notesArray));
+
+            noteTitle.value = "";
+            noteContent.value = "";
+
+            currentPage = 1; 
+        };
+
+            function deleteNote(Index) {
+            notesArray.splice(Index, 1);
+            localStorage.setItem("myNotes", JSON.stringify(notesArray));
+            
+            var totalPages = Math.ceil(notesArray.length / notesPerPage);
+            if (currentPage > totalPages && currentPage > 1) {
+                currentPage = totalPages;
+            }   
+        }
+        prevBtn.onclick = function() {
+            if (currentPage > 1) {
+                currentPage--;
+            }
+        };
+        nextBtn.onclick = function() {
+            var totalPages = Math.ceil(notesArray.length / notesPerPage);
+            if (currentPage < totalPages) {
+                currentPage++;
+            }      
+        };  
+            num.innerText = "Page " + currentPage + " of " + totalPages;
+            prevBtn.disabled = (currentPage === 1);
+            nextBtn.disabled = (currentPage === totalPages);
+    </script>
+
+</body>
+</html>
