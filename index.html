@@ -48,7 +48,7 @@
     </div>
 
     <script>
-        var notesArray = JSON.parse(localStorage.getItem("myNotes")) || [];
+      var notesArray = JSON.parse(localStorage.getItem("myNotes")) || [];
         var currentPage = 1;
         const notesPerPage = 5;
 
@@ -86,6 +86,7 @@
             noteContent.value = "";
 
             currentPage = 1; 
+            Notes();
         };
 
             function deleteNote(Index) {
@@ -95,22 +96,77 @@
             var totalPages = Math.ceil(notesArray.length / notesPerPage);
             if (currentPage > totalPages && currentPage > 1) {
                 currentPage = totalPages;
-            }   
+            }
+            
+            Notes();
         }
         prevBtn.onclick = function() {
             if (currentPage > 1) {
                 currentPage--;
+                Notes();
             }
         };
         nextBtn.onclick = function() {
             var totalPages = Math.ceil(notesArray.length / notesPerPage);
             if (currentPage < totalPages) {
                 currentPage++;
-            }      
-        };  
+                Notes();
+            }
+        };
+
+        function Notes() {
+            notesList.innerHTML = "";
+
+            if (notesArray.length === 0) {
+                notesList.innerHTML = '<p class="text-gray-500 text-center py-4">No notes</p>';
+                return;
+            }
+
+            var totalPages = Math.ceil(notesArray.length / notesPerPage);
+            var startIndex = (currentPage - 1) * notesPerPage;
+            var endIndex = Math.min(startIndex + notesPerPage, notesArray.length);
+
+            for (var i = startIndex; i < endIndex; i++) {
+                var currentNote = notesArray[i];
+
+                var noteDiv = document.createElement("div");
+                noteDiv.className = "p-4 relative mb-4";
+
+                if (currentNote.title && currentNote.title!== "") {
+                    var h4 = document.createElement("h4");
+                    h4.className = "text-center"; 
+                    h4.innerText = currentNote.title;
+                    noteDiv.appendChild(h4);
+                }
+
+                var p = document.createElement("p");
+                p.innerText = currentNote.content;
+                noteDiv.appendChild(p);
+
+                var timeSpan = document.createElement("div");
+                timeSpan.innerText = "Saved: " + currentNote.dateTime;
+                noteDiv.appendChild(timeSpan);
+
+                var deleteBtn = document.createElement("button");
+                deleteBtn.className = "px-10 bg-red-100 text-red-600 ";
+                deleteBtn.innerText = "Delete";
+                
+                deleteBtn.setAttribute("data-index", i);
+                deleteBtn.onclick = function() {
+                    var indexToDelete = parseInt(this.getAttribute("data-index"));
+                    deleteNote(indexToDelete);
+                };
+                
+                noteDiv.appendChild(deleteBtn);
+                notesList.appendChild(noteDiv);
+            }
+
             num.innerText = "Page " + currentPage + " of " + totalPages;
             prevBtn.disabled = (currentPage === 1);
             nextBtn.disabled = (currentPage === totalPages);
+        }
+
+        Notes();
     </script>
 
 </body>
